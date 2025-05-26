@@ -41,6 +41,9 @@ hagl_color_t bitmapTemporalArray[512];
 #define JOYSTICK_PIN_BUTTON GPIO_NUM_13
 SemaphoreHandle_t xDrawHandle;
 
+// Pin para el botón
+#define PIN_BOTON GPIO_NUM_12
+
 // Algunas configuraciones
 #define inputBufferSize 5
 void generarFruta();
@@ -126,7 +129,19 @@ void configurarPines() {
 		.intr_type = GPIO_INTR_DISABLE
 	};
 	
-	gpio_config(&joybutton); }
+	gpio_config(&joybutton);
+
+	// Configurar botón de la protoboard
+	gpio_config_t button = {
+		.mode = GPIO_MODE_INPUT,
+		.pin_bit_mask = 1ULL << PIN_BOTON,
+		.pull_down_en = GPIO_PULLDOWN_ENABLE,
+		.pull_up_en = GPIO_PULLUP_DISABLE,
+		.intr_type = GPIO_INTR_DISABLE
+	};
+
+	gpio_config(&button);
+}
 
 hagl_color_t* rotarBitmap(const hagl_color_t *bitmap, enum direcciones rotacion) {
 	hagl_color_t *salida = malloc(256 * sizeof(hagl_color_t));
@@ -389,7 +404,8 @@ void IRAM_ATTR input(void *param) {
 	while(true) {
 		joystick.x = adc1_get_raw(JOYSTICK_PIN_X);
 		joystick.y = adc1_get_raw(JOYSTICK_PIN_Y);
-		boton = gpio_get_level(JOYSTICK_PIN_BUTTON);
+		boton = gpio_get_level(JOYSTICK_PIN_BUTTON) && (! (gpio_get_level(PIN_BOTON) & 1) );
+		// printf("joy: %i\nboton:%i\n", gpio_get_level(JOYSTICK_PIN_BUTTON), gpio_get_level(PIN_BOTON));
 		// printf("%i %i %i\n", joystick.x, joystick.y, boton);
 
 		if(estadoJuego == MENU) {
@@ -404,7 +420,7 @@ void IRAM_ATTR input(void *param) {
 					serpiente[i].x = 0; 
 					serpiente[i].y = 0;
 				}
-				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0) {vTaskDelay(pdMS_TO_TICKS(300));}
+				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0 || gpio_get_level(PIN_BOTON) == 1 ) {vTaskDelay(pdMS_TO_TICKS(300));}
 	
 				serpiente[0].x = 3;
 				serpiente[0].y = 4;
@@ -438,7 +454,7 @@ void IRAM_ATTR input(void *param) {
 		else if(estadoJuego == JUGANDO) {
 			if(boton == 0) {
 				estadoJuego = PAUSE;
-				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0) {vTaskDelay(pdMS_TO_TICKS(300));}
+				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0 || gpio_get_level(PIN_BOTON) == 1 ) {vTaskDelay(pdMS_TO_TICKS(300));}
 				continue;
 			}
 
@@ -493,19 +509,19 @@ void IRAM_ATTR input(void *param) {
 		}
 		else if(estadoJuego == PAUSE) {
 			if(boton == 0) {
-				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0) {vTaskDelay(pdMS_TO_TICKS(300));}
+				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0 || gpio_get_level(PIN_BOTON) == 1 ) {vTaskDelay(pdMS_TO_TICKS(300));}
 				estadoJuego = JUGANDO;
 			}
 		}
 		else if(estadoJuego == GAMEOVER) {
 			if(boton == 0) {
-				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0) {vTaskDelay(pdMS_TO_TICKS(300));}
+				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0 || gpio_get_level(PIN_BOTON) == 1 ) {vTaskDelay(pdMS_TO_TICKS(300));}
 				estadoJuego = MENU;
 			}
 		}
 		else if(estadoJuego == GANAR) {	
 			if(boton == 0) {
-				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0) {vTaskDelay(pdMS_TO_TICKS(300));}
+				while(gpio_get_level(JOYSTICK_PIN_BUTTON) == 0 || gpio_get_level(PIN_BOTON) == 1 ) {vTaskDelay(pdMS_TO_TICKS(300));}
 				estadoJuego = MENU;
 			}
 		}
