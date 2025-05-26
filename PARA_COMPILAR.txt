@@ -1,0 +1,78 @@
+Para compilar este proyecto hará falta las herramientas de desarrollo de espressif
+Cabe aclarar que el proyecto fue ideado para funcionar con la versión 5.4 de idf, cualquier otra versión puede ocasionar errores.
+Dicho lo anterior, las herramientas se pueden conseguir mediante el siguiente enlace
+
+https://docs.espressif.com/projects/esp-idf/en/stable/esp32/get-started/index.html
+
+Dependiendo del sistema operativo será la forma de abrir las herramientas, en el sistema operativo Windows agrega un acceso directo en el escritorio que abre un CMD que con él puedes utilizar las herramientas de desarrollo, si se abre un CMD sin utilizar ese acceso directo entonces no se podrán utilizar las herramientas. En linux, en contraparte, hay que establecer un comando para obtener las herramientas cada vez que lo invoquemos.
+
+Con el CMD abierto y las herramientas disponibles hay que navegar hasta el directorio donde se encuentra este archivo para poder cambiar algunas configuraciones.
+
+Ahora, se pueden cambiar los pines necesarios para la pantalla si fuera necesario, para ello podemos abrir el archivo sdkconfig y editarlo, las lineas para cambiar los pines son las siguientes:
+
+CONFIG_MIPI_DISPLAY_PIN_MISO=-1
+CONFIG_MIPI_DISPLAY_PIN_MOSI=23
+CONFIG_MIPI_DISPLAY_PIN_CLK=18
+CONFIG_MIPI_DISPLAY_PIN_CS=21
+CONFIG_MIPI_DISPLAY_PIN_DC=22
+CONFIG_MIPI_DISPLAY_PIN_RST=19
+CONFIG_MIPI_DISPLAY_PIN_BL=-1
+CONFIG_MIPI_DISPLAY_PWM_BL=-1
+
+Los anteriores valores son los que usa el programa por predeterminado.
+
+Otra forma de cambiar la configuración de la pantalla es usando el comando
+idf.py menuconfig
+donde nos saldrá un menú donde podremos cambiar muchos parámetros, el que nos importa está en el apartado:
+Component config -> Hardware Agnostic Graphics Library HAL (MIPI)
+
+Para finalmente compilar el programa podemos simplemente utilizar el comando
+idf.py build
+
+Si en algún momento falla la compilación podemos utilizar
+idf.py fullclean
+para borrar cualquier compilación que haya quedado dañada o inconclusa
+
+Para flashear el programa al esp32 utilizamos
+idf.py flash
+
+Y para monitoriar (Para ver que imprime el programa entre otras cosas)
+idf.py monitor
+
+Apartir de este punto se enlistarán componentes necesarios para la creación del producto, esta parte está igualmente incluida en el manual realizado, es preferible la lectura de esta parte en ese documento puesto que se ofrece una mejor organización de la información, diagramas y fotos que ayudan a la compresión del proceso.
+
+Para el proyecto se necesita:
+* ESP32 USB-c CP2102
+* Cable USB-c con transferencia de datos
+* Pantalla LCD TFT de 128x160 con el driver ST7735
+* Modulo joystick
+* Un botón
+* Cables (y un cortacables) o jumpers
+* Protoboard (Opcional, solamente si se planea usar con jumpers hembra a hembra)
+
+Para montar el proyecto los pines de los diversos dispositivos deben ir conectados de la siguiente forma:
+
+╔════════════════╦══════════════════╗
+║  Pin Pantalla  ║     Pin ESP32    ║
+╠════════════════╬══════════════════╣
+║     GND        ║     Tierra       ║
+║     VCC        ║     3V           ║
+║     SCL        ║     GPIO 18      ║
+║     SDA        ║     GPIO 23      ║
+║     RES        ║     GPIO 19      ║
+║     DC         ║     GPIO 22      ║
+║     CS         ║     GPIO 21      ║
+║     BL         ║     3V           ║
+╚════════════════╩══════════════════╝
+
+╔════════════════╦══════════════════╗
+║  Pin Joystick  ║     Pin ESP32    ║
+╠════════════════╬══════════════════╣
+║     GND        ║     Tierra       ║
+║     VCC        ║     3V           ║
+║     VRx        ║     GPIO 34      ║
+║     VRy        ║     GPIO 35      ║
+║     SW         ║     GPIO 13      ║
+╚════════════════╩══════════════════╝
+
+El botón va conectado al pin12, y debe ser pulldown (es decir que cuando se presione se conecte a 3v)
