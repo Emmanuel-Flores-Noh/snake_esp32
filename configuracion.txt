@@ -76,3 +76,4 @@ Para montar el proyecto los pines de los diversos dispositivos deben ir conectad
 ╚════════════════╩══════════════════╝
 
 El botón va conectado al pin12, y debe ser pulldown (es decir que cuando se presione se conecte a 3v)
+Para ejecutar todo simplemente hay que flashear el programa al esp32 y conectarlo a una fuente de corriente (Recomendablemente a una computadora).
